@@ -1,0 +1,367 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+package esanteInterface;
+import static esanteInterface.MySQLConnection.*;
+import java.sql.*;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import model.Catalogue;
+/**
+ *
+ * @author ideap
+ */
+public class CatalogueGP extends javax.swing.JFrame {
+
+    /**
+     * Creates new form CatalogueGP
+     */
+    public CatalogueGP() {
+        initComponents();
+        showCatalogues ();
+    }
+    
+    public void updateRecordCatalogue() {
+        String query = "UPDATE Catalogue SET nomCatalogue = ? WHERE nCatalogue = ?;";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            
+            pstmt.setInt(2, Integer.parseInt(ncatalogueField.getText()));
+            pstmt.setString(1, nomCatalogueField.getText());
+            
+            int rowsUpdated = pstmt.executeUpdate();
+            if (rowsUpdated > 0 ) {
+                JOptionPane.showMessageDialog(null,"Record updated successfully!");
+                DefaultTableModel model = (DefaultTableModel) catalogueTable.getModel();
+                model.setRowCount(0);
+                showCatalogues();
+                
+            } else {
+                JOptionPane.showMessageDialog(null,"No records found for the given ID.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void insertCatalogue() {
+    String query = "INSERT INTO Catalogue VALUES (?, ?, ?)";
+    
+    try (Connection conn = getConnection();
+        PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, Integer.parseInt(ncatalogueField.getText()));
+            pstmt.setString(2, nomCatalogueField.getText());
+            pstmt.setInt(3, Integer.parseInt(nSocieteField.getText()));
+            pstmt.executeUpdate();
+            JOptionPane.showMessageDialog(null,"Record inserted successfully!");
+
+            DefaultTableModel model = (DefaultTableModel) catalogueTable.getModel();
+            model.setRowCount(0);
+            showCatalogues();
+            
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null,"Informations Incorrect");
+    }
+    }
+    
+    public void deleteRecordReservation() {
+        String query = "DELETE FROM catalogue WHERE nCatalogue = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)
+            ) {
+            
+            pstmt.setInt(1, Integer.parseInt(ncatalogueField.getText()));
+            int rowsDeleted = pstmt.executeUpdate();
+            if (rowsDeleted > 0) {
+                JOptionPane.showMessageDialog(null,"Record deleted successfully!");
+                DefaultTableModel model = (DefaultTableModel) catalogueTable.getModel();
+                model.setRowCount(0);
+                showCatalogues();
+                
+            } else {
+                JOptionPane.showMessageDialog(null,"No records found for the given ID.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,"Error!");
+            
+        }
+    }
+    
+    public ArrayList<Catalogue> catalogueList () {
+      ArrayList<Catalogue> catList = new ArrayList<>();
+        try {
+            Connection conn = (Connection) MySQLConnection.getConnection();
+            String query="SELECT * From Catalogue";
+            Statement st=conn.createStatement();
+            ResultSet rs=st.executeQuery(query);
+            Catalogue cat;
+            while (rs.next()){
+                cat= new Catalogue (rs.getInt("societeId"),rs.getInt("nCatalogue"),rs.getString("nomCatalogue"));
+                catList.add(cat);
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(CatalogueGP.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      return catList;
+    } 
+    public void showCatalogues (){
+        ArrayList<Catalogue> list = catalogueList();
+        DefaultTableModel model = (DefaultTableModel) catalogueTable.getModel();
+        Object[] row= new Object[4];
+        for (int i=0;i<list.size();i++) {
+           row[0]=list.get(i).getSocieteId();
+           row[1]=list.get(i).getNCatalogue();
+           row[2]=list.get(i).getNomCatalogue();
+           model.addRow(row);
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jLabel4 = new javax.swing.JLabel();
+        ajouter = new javax.swing.JButton();
+        modifier = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        catalogueTable = new javax.swing.JTable();
+        supprimer = new javax.swing.JButton();
+        ncatalogueField = new javax.swing.JTextField();
+        jButton2 = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        nomCatalogueField = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        nSocieteField = new javax.swing.JTextField();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jLabel4.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel4.setText("Gerer catalogues:");
+
+        ajouter.setFont(new java.awt.Font("Tw Cen MT", 1, 14)); // NOI18N
+        ajouter.setText("Ajouter");
+        ajouter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ajouterActionPerformed(evt);
+            }
+        });
+
+        modifier.setFont(new java.awt.Font("Tw Cen MT", 1, 14)); // NOI18N
+        modifier.setText("Modifier");
+        modifier.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modifierActionPerformed(evt);
+            }
+        });
+
+        catalogueTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Numero societe", "Num Catalogue", "Nom"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        catalogueTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                catalogueTableMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(catalogueTable);
+
+        supprimer.setFont(new java.awt.Font("Tw Cen MT", 1, 14)); // NOI18N
+        supprimer.setText("Supprimer");
+        supprimer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                supprimerActionPerformed(evt);
+            }
+        });
+
+        jButton2.setFont(new java.awt.Font("Tw Cen MT", 0, 14)); // NOI18N
+        jButton2.setText("RETOUR");
+        jButton2.setBorder(null);
+        jButton2.setBorderPainted(false);
+        jButton2.setFocusPainted(false);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setFont(new java.awt.Font("Tw Cen MT", 1, 14)); // NOI18N
+        jLabel2.setText("Numero Catalogue:");
+
+        jLabel3.setFont(new java.awt.Font("Tw Cen MT", 1, 14)); // NOI18N
+        jLabel3.setText("Nom catalogue:");
+
+        jLabel5.setFont(new java.awt.Font("Tw Cen MT", 1, 14)); // NOI18N
+        jLabel5.setText("Numero Societe:");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(jLabel2)
+                                        .addComponent(nomCatalogueField, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
+                                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(nSocieteField, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
+                                        .addComponent(ajouter, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(modifier, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(supprimer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addComponent(ncatalogueField, javax.swing.GroupLayout.PREFERRED_SIZE, 243, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(17, 17, 17))))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(2, 2, 2)
+                        .addComponent(ncatalogueField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nomCatalogueField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nSocieteField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(ajouter)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(modifier)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(supprimer))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 320, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void ajouterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ajouterActionPerformed
+        insertCatalogue();
+    }//GEN-LAST:event_ajouterActionPerformed
+
+    private void modifierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modifierActionPerformed
+        updateRecordCatalogue();
+    }//GEN-LAST:event_modifierActionPerformed
+
+    private void supprimerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_supprimerActionPerformed
+       deleteRecordReservation();
+    }//GEN-LAST:event_supprimerActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        HomePageAdmin retour= new HomePageAdmin();
+        this.setVisible(false);
+        retour.setVisible(true);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void catalogueTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_catalogueTableMouseClicked
+              // get the model from the jtable
+       DefaultTableModel model = (DefaultTableModel)catalogueTable.getModel();
+
+        // get the selected row index
+       int selectedRowIndex = catalogueTable.getSelectedRow();
+       
+        // set the selected row data into jtextfields
+       ncatalogueField.setText(model.getValueAt(selectedRowIndex, 1).toString());
+       nomCatalogueField.setText(model.getValueAt(selectedRowIndex, 2).toString());
+       nSocieteField.setText(model.getValueAt(selectedRowIndex, 0).toString());
+    }//GEN-LAST:event_catalogueTableMouseClicked
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(CatalogueGP.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(CatalogueGP.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(CatalogueGP.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(CatalogueGP.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new CatalogueGP().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton ajouter;
+    private javax.swing.JTable catalogueTable;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton modifier;
+    private javax.swing.JTextField nSocieteField;
+    private javax.swing.JTextField ncatalogueField;
+    private javax.swing.JTextField nomCatalogueField;
+    private javax.swing.JButton supprimer;
+    // End of variables declaration//GEN-END:variables
+}
